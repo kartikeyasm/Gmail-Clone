@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
 import { User } from '../models/user.model.js'
+import { uploadCloudinary } from '../utils/cloudinary.js';
 
 
 export const register = async (req, res) => {
     try{
-        const {fullName, email, password, avatar} = req.body;
+        const {fullName, email, password} = req.body;
         if(!fullName){
             return res.status(400).json({ message: "Please enter your full name", success: false });
         }
@@ -21,6 +22,22 @@ export const register = async (req, res) => {
         if(await User.findOne({email})){
             return res.status(409).json({ message: "Email already exists", success: false });
         }
+        const avatarLocalPath = req.file?.path;
+        let avatar;
+        try{
+            if(avatarLocalPath){
+                console.log("Avatar Local Path:", avatarLocalPath);
+                avatar = await uploadCloudinary(avatarLocalPath); 
+                avatar = avatar.url;      
+            }
+            else{
+                console.log("No avatar uploaded, using default avatar");
+                avatar = `https://avatar.iran.liara.run/username?username=${fullName}%20shankar%20mishra&bold=false&length=1`
+            }
+        }catch (error) {
+            return res.status(500).json({ message: "Error uploading avatar", success: false });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({
             fullName,
@@ -30,7 +47,7 @@ export const register = async (req, res) => {
         });
 
         const isUserExist = await User.findById(user._id).select(
-            "-password -refreshToken"                                //removed password and refreshToken from the fields
+            "-password"
         )
 
         if(!isUserExist){
@@ -41,7 +58,7 @@ export const register = async (req, res) => {
 
     }catch (error) {
         console.error("Error in register:", error);
-        res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -91,7 +108,7 @@ export const login = async (req, res) => {
         
     }catch (error) {
         console.error("Error in login:", error);
-        res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -108,6 +125,6 @@ export const logout = async (req, res) => {
         })
     }catch (error) {
         console.error("Error in logout:", error);
-        res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }

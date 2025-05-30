@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/appSlice';
 
 function login() {
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [input, setInput] = useState({
         email: "",
         password: ""
@@ -31,7 +34,9 @@ function login() {
                     email: "",
                     password: ""
                 });
+                dispatch(setUser(res.data.user));
                 navigate("/");
+
                 toast.success(res.data.message);
             }
             console.log("Login response:", res.data);

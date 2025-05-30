@@ -8,6 +8,8 @@ import SendEmail from './components/SendEmail'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import { Toaster } from 'react-hot-toast'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
 
 
 const appRouter = createBrowserRouter([
@@ -37,8 +39,7 @@ const appRouter = createBrowserRouter([
 
 
 function App() {
-  const user = false;;
-
+  const {user} = useSelector(store => store.app);
   return (
     <div className='bg-[#F6F8FC] h-screen'>
       {user && <Navbar/>}

@@ -2,11 +2,15 @@ import React from 'react'
 import { MdCropSquare } from 'react-icons/md'
 import { MdOutlineStarBorder } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setOpenedMail } from '../redux/appSlice';
 
-const Email = () => {
+const Email = ({email}) => {
     const navigate = useNavigate()
+    const dispatch = useDispatch();
     const openMail = () => {
-        navigate("/mail/123") // Replace '123' with the actual email ID or parameter you want to use
+        dispatch(setOpenedMail(email));
+        navigate(`/mail/${email._id}`)
     }
     return (
         <div onClick={openMail} className='flex items-center justify-between border-b border-gray-200 px-4 py-3 text-sm hover:cursor-pointer hover:shadow-md'>
@@ -18,14 +22,14 @@ const Email = () => {
                     <MdOutlineStarBorder size={'20px'} />
                 </div>
                 <div>
-                    <h1 className='font-semibold'>Email Subject</h1>
+                    <h1 className='font-semibold'>{email?.subject}</h1>
                 </div>
             </div>
             <div className='flex-1 ml-4' >
-                <p>Email Message</p>
+                <p>{email?.message}</p>
             </div>
             <div className='flex-none text-gray text-sm'>
-                <p>Email Sent At</p>
+                <p>{email?.createdAt}</p>
             </div>
         </div>
     )
